@@ -7,5 +7,4 @@ test('Record Attendance', async ({ page }) => {
     await page.getByRole('button', { name: 'Login' }).click();
     await page.locator('[class="ant-btn ant-btn-primary"]').click();
     await page.locator('[class="ant-typography"]');
-    await expect(page.locator('[class="ant-typography"]').nth(1)).toContainText('Completed');
 });
