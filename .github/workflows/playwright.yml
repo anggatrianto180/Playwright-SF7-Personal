@@ -38,11 +38,14 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
-      
+
       - name: Read test summary
         id: test_summary
         if: always()
-        run: echo "summary=$(cat test-summary.txt)" >> $GITHUB_ENV
+        run: |
+          echo 'summary<<EOF' >> $GITHUB_OUTPUT
+          cat test-summary.txt >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
         
       - name: Send email notification
         if: always()
