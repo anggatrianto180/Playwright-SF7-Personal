@@ -68,11 +68,10 @@ jobs:
             Tes otomatis telah selesai.
             Laporan lengkap terlampir dalam email ini.
 
-            ---
-            **Ringkasan Hasil Tes:**
-            ```
+            Ringkasan Hasil Tes:
+            
             ${{ steps.test_summary.outputs.summary }}
-            ```
+            
           to: anggatrianto180@gmail.com
           from: GitHub Actions <no-reply@github.com>
 
