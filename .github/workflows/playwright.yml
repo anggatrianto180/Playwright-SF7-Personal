@@ -1,4 +1,4 @@
-name: Playwright Tests and Email Notification
+name: Playwright Tests with Email Attachment
 
 on:
   push:
@@ -23,11 +23,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+      
+      # LANGKAH BARU 1: Memastikan zip terinstall
+      - name: Install zip utility
+        run: sudo apt-get update && sudo apt-get install -y zip
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # 👇 PERINTAH SPESIFIK ANDA DIGUNAKAN DI SINI 👇
       - name: Run Playwright tests
         run: npx playwright test tests/Record-Attendance/ | tee test-summary.txt
 
@@ -35,9 +38,14 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report
+          name: playwright-report-artifact
           path: playwright-report/
           retention-days: 30
+      
+      # LANGKAH BARU 2: Membuat file zip
+      - name: Zip test report
+        if: always()
+        run: zip -r playwright-report.zip playwright-report/
 
       - name: Read test summary
         id: test_summary
@@ -55,25 +63,18 @@ jobs:
           server_port: ${{ secrets.MAIL_PORT }}
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-
-          subject: 'Hasil Tes Playwright: ${{ job.status }} - Repositori ${{ github.repository }}'
-          
+          subject: 'Laporan Tes Playwright: ${{ job.status }} - ${{ github.repository }}'
           body: |
-            Tes otomatis telah selesai dijalankan.
-
-            Repositori: ${{ github.repository }}
-            Pemicu Event: ${{ github.event_name }}
-            Status Tes: ${{ job.status }}
-            Dijalankan oleh: ${{ github.actor }}
-            Commit: "${{ github.event.head_commit.message }}"
-
-            Anda bisa melihat detail log dan mengunduh laporan artifact di link berikut:
-            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            Tes otomatis telah selesai.
+            Laporan lengkap terlampir dalam email ini.
 
             ---
             **Ringkasan Hasil Tes:**
             ```
-            ${{ env.summary }}
+            ${{ steps.test_summary.outputs.summary }}
             ```
           to: anggatrianto180@gmail.com
           from: GitHub Actions <no-reply@github.com>
+
+          # LANGKAH MODIFIKASI 3: Menambahkan file zip sebagai lampiran
+          attachments: playwright-report.zip
