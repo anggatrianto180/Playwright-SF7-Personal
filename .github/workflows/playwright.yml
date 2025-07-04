@@ -82,5 +82,5 @@ jobs:
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
             
           # Ganti dengan email penerima
-          to: nama_email_penerima@example.com
+          to: anggatrianto180@gmail.com
           from: GitHub Actions <no-reply@github.com>
