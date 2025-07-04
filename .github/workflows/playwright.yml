@@ -1,74 +1,60 @@
-# Nama workflow yang akan muncul di tab Actions
 name: Playwright Tests and Email Notification
 
-# Pemicu: kapan workflow ini akan berjalan
 on:
   push:
-    branches: [ main, master ] # Berjalan saat ada push ke branch main atau master
+    branches: [ main, master ]
   pull_request:
-    branches: [ main, master ] # Berjalan saat ada pull request ke branch main atau master
+    branches: [ main, master ]
 
-# Daftar pekerjaan (jobs) yang akan dieksekusi
 jobs:
   test:
-    # Nama pekerjaan
     name: Run Playwright Tests
-    # Batas waktu maksimal untuk pekerjaan ini
     timeout-minutes: 60
-    # Mesin virtual yang akan digunakan
     runs-on: ubuntu-latest
 
-    # Urutan langkah-langkah yang akan dijalankan
     steps:
-      # Langkah 1: Mengunduh kode dari repositori ke mesin virtual
       - name: Check out repository
         uses: actions/checkout@v4
 
-      # Langkah 2: Menyiapkan lingkungan Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: lts/* # Menggunakan versi LTS terbaru dari Node.js
+          node-version: lts/*
 
-      # Langkah 3: Menginstal dependensi proyek dari package-lock.json
       - name: Install dependencies
         run: npm ci
 
-      # Langkah 4: Menginstal browser yang dibutuhkan Playwright beserta dependensinya
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # Langkah 5: Menjalankan skrip tes Playwright
+      # 👇 PERINTAH SPESIFIK ANDA DIGUNAKAN DI SINI 👇
       - name: Run Playwright tests
-        run: npx playwright test tests/Record-Attendance/
+        run: npx playwright test tests/Record-Attendance/ | tee test-summary.txt
 
-      # Langkah 6: Mengunggah laporan hasil tes sebagai artifact
-      # Artifact ini bisa diunduh dari halaman hasil workflow
       - name: Upload test report
         uses: actions/upload-artifact@v4
-        # Hanya berjalan jika pekerjaan tidak dibatalkan
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
           path: playwright-report/
-          retention-days: 30 # Laporan disimpan selama 30 hari
-
-      # Langkah 7: Mengirim notifikasi email
+          retention-days: 30
+      
+      - name: Read test summary
+        id: test_summary
+        if: always()
+        run: echo "summary=$(cat test-summary.txt)" >> $GITHUB_ENV
+        
       - name: Send email notification
-        # "if: always()" memastikan langkah ini selalu berjalan, baik tes LULUS maupun GAGAL
         if: always()
         uses: dawidd6/action-send-mail@v3
         with:
-          # Menggunakan kredensial dari GitHub Secrets
           server_address: ${{ secrets.MAIL_SERVER }}
           server_port: ${{ secrets.MAIL_PORT }}
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
 
-          # Judul email yang dinamis, menyertakan status pekerjaan (passed/failed)
           subject: 'Hasil Tes Playwright: ${{ job.status }} - Repositori ${{ github.repository }}'
           
-          # Isi email yang dinamis, menyertakan berbagai informasi dari konteks GitHub
           body: |
             Tes otomatis telah selesai dijalankan.
 
@@ -80,7 +66,11 @@ jobs:
 
             Anda bisa melihat detail log dan mengunduh laporan artifact di link berikut:
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            
-          # Ganti dengan email penerima
+
+            ---
+            **Ringkasan Hasil Tes:**
+            ```
+            ${{ env.summary }}
+            ```
           to: anggatrianto180@gmail.com
           from: GitHub Actions <no-reply@github.com>
