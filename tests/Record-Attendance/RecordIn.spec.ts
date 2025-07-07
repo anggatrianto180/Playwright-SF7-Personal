@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
+import { login } from '../login.spec';
 
 test('Record Attendance', async ({ page }) => {
-    await page.goto('https://sfworkplaze.dataon.com/');
-    await page.locator('#userName').fill('gordon');
-    await page.locator('#password').fill('password123');
-    await page.getByRole('button', { name: 'Login' }).click();
-    await page.locator('[class="ant-btn ant-btn-primary"]').click();
-    await page.locator('[class="ant-typography"]');
+    await login(page);
+
+    await page.waitForSelector('text=Record time');
+    await page.locator('text=Record time').dblclick();
+    await page.waitForSelector('text=Success');
 });

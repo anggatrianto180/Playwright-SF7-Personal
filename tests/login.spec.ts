@@ -1,7 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 
-test('TC-01-Login', async ({page}) => {
-
+export async function login(page: Page) {
     await test.step('Langkah 1: Membuka halaman login', async () => {
     await page.goto('https://sfworkplaze.dataon.com/');
   });
@@ -20,5 +19,4 @@ test('TC-01-Login', async ({page}) => {
 
   await test.step('Langkah 5: Memverifikasi berhasil login dan masuk ke dashboard', async () => {
     await expect(page).toHaveURL('https://sfworkplaze.dataon.com/standard/home');
-  });
-});;
+})};
