@@ -23,8 +23,8 @@ test('Add Leave Request', async ({ page }) => {
     await inputTo.press('Delete');
     await inputTo.fill('2 Aug 2025');
 
-    await page.locator('xpath=//textarea[@id="LeaveRequestAdd_REMARK"]').fill('Reason');
-    await page.locator('xpath=//button[@class="ant-btn ant-btn-primary"]').click()
+    await page.locator('xpath=//textarea[@id="LeaveRequestAdd_REMARK"]').fill('Reason AT');
+    await page.locator('xpath=//button[@class="ant-btn ant-btn-primary"]').dblclick()
     // await page.waitForURL('https://sfworkplaze.dataon.com/standard/hrm.time-and-attendance.attendance-request.leave-request');
     // await expect(page).toHaveURL('https://sfworkplaze.dataon.com/standard/hrm.time-and-attendance.attendance-request.leave-request');
 });
